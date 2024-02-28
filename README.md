@@ -1,1 +1,6 @@
 # QRCodeReader
+The following program, takes a Dataset containing 562 images, each image including a QRCode. By adjusting the image processing function, I was able to achieve a success rate of 74%. The runtime for going through these images, decoding them and displaying the string was that of around 101 seconds.
+
+Firstly, the scale factor was adjusted/resized. Afterwards the image was turned to grayscale. The contrast was then adjujusted. Next, the brightness also had to be adjusted, in case of QRCodes that are displayed in the dark. Afterwards the CLAHE was adjusted. Contrast Limited AHE (CLAHE) is a variant of adaptive histogram equalization in which the contrast amplification is limited, so as to reduce this problem of noise amplification. Finally a Gaussian Blur was added. Gaussian blur smoothes uneven pixel values in an image by cutting out the extreme outliers.
+
+I am currently still trying to improve the image processing, so as to at least achieve an 80% success rate. It is quite unlikely to reach a 100% success rate when adjusting/processing images.
