@@ -1,5 +1,5 @@
+import sys
 import cv2
-import numpy as np
 from pyzbar.pyzbar import decode
 import os
 import time
@@ -50,6 +50,21 @@ class QRCodeProcessor:
 
         return blurred_frame
 
+    # Function that creates a small loading effect
+    def loading_effect(self):
+        spinner_chars = ['-', '\\', '|', '/']
+        iterations = 5
+
+        sys.stdout.write("Processing images: ")
+        sys.stdout.flush()
+
+        for _ in range(iterations):
+            for char in spinner_chars:
+                sys.stdout.write(char)
+                sys.stdout.flush()
+                time.sleep(0.1)
+                sys.stdout.write('\b')
+
     # Runs the program
     def run(self):
         try:
@@ -57,10 +72,11 @@ class QRCodeProcessor:
             start_time = time.time()  
             # Initialize a counter for total QR codes read
             total_qr_codes_read = 0  
-            print(f"Total images to process: {len(self.image_files)}\n")
+            print(f"Total images to process: {len(self.image_files)}")
+            self.loading_effect()  # Add loading effect
 
             for image_file in self.image_files:
-                print(f"Processing image: {image_file}\n")
+
                 image_path = os.path.join(image_folder, image_file)
                 frame = cv2.imread(image_path)
 
@@ -71,23 +87,28 @@ class QRCodeProcessor:
                 # Save the processed image with a different filename
                 output_path = os.path.join(output_folder, f"processed_{image_file}")
                 cv2.imwrite(output_path, processed_frame)
-                print(f"Number of QR codes detected: {len(qr_code_data_list)}\n")
+
+                my_file = open("/Users/dylangrech/Desktop/QrCodes.txt", "a")
 
                 if not qr_code_data_list:
-                    print(f"No QR code found for '{image_file}'.\n")
+                    my_file.write(f"No QR code found for '{image_file}'.\n")
                     continue
                 # Update the counter
                 total_qr_codes_read += len(qr_code_data_list)  
                 for idx, qr_code_data in enumerate(qr_code_data_list):
                     qr_code_str = qr_code_data.data.decode('utf-8')
-                    print(f"Decoded String {idx + 1}: {qr_code_str}")
-                    print(f"QR code found for '{image_file}'.\n")
+                    my_file.write(f"Decoded String {idx + 1}: {qr_code_str}")
+                    my_file.write(f"QR code found for '{image_file}'.\n")
                     self.processed_qr_codes.add(qr_code_str)
+                my_file.close()
 
             # Record the end time
             end_time = time.time()  
             elapsed_time = end_time - start_time
-            print(f"Total QR codes read: {total_qr_codes_read} out of {len(self.image_files)} images.")
+            # Output information about the program runtime and success rate
+            print(f"\nTotal QR codes read: {total_qr_codes_read} out of {len(self.image_files)} images.")
+            successRate = 100 * (total_qr_codes_read / len(self.image_files))
+            print(f"Success rate is {successRate:.2f}%")
             print(f"Total runtime: {elapsed_time:.2f} seconds")
 
         except KeyboardInterrupt:
